@@ -125,6 +125,17 @@
   }
   .start-btn:active { transform: scale(0.98); background: #FBF6EE; }
   .start-btn svg { width: 20px; height: 20px; }
+  .privacy-note {
+    margin: 24px 0 0;
+    font-size: 11px;
+    color: #A89684;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .privacy-note svg { width: 11px; height: 11px; }
 
   .chat {
     display: flex; flex-direction: column;
@@ -732,16 +743,29 @@
             글로 풀어내기
           </button>
         </div>
+        <p class="privacy-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          기록은 이 기기에만 저장돼요
+        </p>
       </div>
     </div>
     <div id="settings-menu" class="settings-menu hidden">
-      <div class="settings-item" onclick="resetData()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-        기록 모두 지우기
+      <div class="settings-item" onclick="exportData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        기록 내보내기
       </div>
+      <div class="settings-item" onclick="triggerImport()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        기록 가져오기
+      </div>
+      <input type="file" id="import-input" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
       <div class="settings-item" onclick="showAbout()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         앱 소개
+      </div>
+      <div class="settings-item danger" onclick="resetData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        기록 모두 지우기
       </div>
     </div>
   </div>
@@ -993,7 +1017,76 @@
   }
   function showAbout() {
     document.getElementById('settings-menu').classList.add('hidden');
-    alert('"풀어내기"는 마음에 걸린 감정을 친구한테 털어놓듯 풀어내고, 나만의 회복법을 발견하는 앱입니다.\n\n모든 데이터는 이 기기에만 저장돼요.');
+    alert('"풀어내기"는 마음에 걸린 감정을 친구한테 털어놓듯 풀어내고, 나만의 회복법을 발견하는 앱입니다.\n\n모든 데이터는 이 기기에만 저장돼요. 다른 기기로 옮기고 싶다면 설정에서 기록 내보내기를 사용하세요.');
+  }
+
+  function exportData() {
+    document.getElementById('settings-menu').classList.add('hidden');
+    if (entries.length === 0) {
+      toast('아직 내보낼 기록이 없어요');
+      return;
+    }
+    const data = {
+      app: 'untangle',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      entries: entries
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `untangle-backup-${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast(`${entries.length}개 기록을 내보냈어요`);
+  }
+
+  function triggerImport() {
+    document.getElementById('settings-menu').classList.add('hidden');
+    document.getElementById('import-input').click();
+  }
+
+  function handleImportFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!data.entries || !Array.isArray(data.entries)) {
+          throw new Error('잘못된 파일');
+        }
+        // 중복 제거: 같은 date + headline은 같은 기록으로 간주
+        const existingKeys = new Set(entries.map(en => `${en.date}|${en.headline}`));
+        const newEntries = data.entries.filter(en =>
+          en.date && en.headline && !existingKeys.has(`${en.date}|${en.headline}`)
+        );
+        if (newEntries.length === 0) {
+          toast('새로 가져올 기록이 없어요');
+          return;
+        }
+        const proceed = confirm(`${newEntries.length}개의 새 기록을 가져올까요?`);
+        if (!proceed) return;
+        entries = [...newEntries, ...entries].sort((a, b) =>
+          new Date(b.date) - new Date(a.date)
+        );
+        localStorage.setItem('untangle-entries', JSON.stringify(entries));
+        updateListScreen();
+        toast(`${newEntries.length}개 기록을 가져왔어요`);
+        switchTab('list');
+      } catch (err) {
+        console.error(err);
+        alert('파일을 읽을 수 없어요. 풀어내기 백업 파일이 맞는지 확인해주세요.');
+      } finally {
+        // 같은 파일 다시 선택할 수 있게 초기화
+        event.target.value = '';
+      }
+    };
+    reader.readAsText(file);
   }
 
   async function startChat() {
