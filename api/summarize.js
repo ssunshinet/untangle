@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 800,
         system: SUMMARY_PROMPT,
         messages: [{ role: 'user', content: '위 대화를 JSON으로 요약해줘. ' + JSON.stringify(messages) }]
