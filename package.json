@@ -1,0 +1,9 @@
+{
+  "name": "untangle",
+  "version": "1.0.0",
+  "description": "마음에 걸린 감정을 풀어내는 앱",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}
