@@ -455,7 +455,22 @@
     border-radius: 14px;
     padding: 14px 16px;
     margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
   }
+  .recovery-card:active { transform: scale(0.98); background: #F5EDE0; }
+  .recovery-card-menu {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 28px; height: 28px;
+    background: transparent; border: none;
+    color: #A89684; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+  }
+  .recovery-card-menu:hover { background: rgba(101,72,51,0.05); }
+  .recovery-card-menu svg { width: 16px; height: 16px; }
   .recovery-card-top {
     display: flex; justify-content: space-between; align-items: flex-start;
     margin-bottom: 6px;
@@ -706,6 +721,110 @@
   .settings-item svg { width: 16px; height: 16px; color: #7A5C4A; }
   .settings-item.danger { color: #A03C3C; }
   .settings-item.danger svg { color: #A03C3C; }
+
+  /* Recovery modal */
+  .recovery-modal {
+    width: 100%;
+    max-width: 440px;
+    background: #FBF6EE;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+    animation: slideUp 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
+    margin: 0 auto;
+  }
+  .recovery-modal h3 {
+    font-family: 'Gowun Batang', serif;
+    font-size: 18px; font-weight: 400;
+    color: #5C4332;
+    margin: 0 0 6px;
+  }
+  .recovery-modal .modal-sub {
+    font-size: 13px; color: #A89684;
+    margin: 0 0 20px;
+  }
+  .modal-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    background: rgba(101,72,51,0.04);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: #5C4332;
+    font-size: 14px;
+  }
+  .modal-row:active { transform: scale(0.98); background: rgba(101,72,51,0.08); }
+  .modal-row svg { width: 18px; height: 18px; color: #7A5C4A; flex-shrink: 0; }
+  .modal-row.danger { color: #A03C3C; }
+  .modal-row.danger svg { color: #A03C3C; }
+  .modal-input {
+    width: 100%;
+    border: 0.5px solid rgba(101,72,51,0.15);
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    color: #5C4332;
+    outline: none;
+    margin-bottom: 14px;
+  }
+  .modal-input:focus { border-color: #D89B7A; }
+  .icon-picker {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .icon-option {
+    aspect-ratio: 1;
+    background: rgba(101,72,51,0.04);
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: #7A5C4A;
+    transition: all 0.15s;
+  }
+  .icon-option:active { transform: scale(0.9); }
+  .icon-option.selected {
+    background: #EDE4D9;
+    border-color: #D89B7A;
+  }
+  .icon-option svg { width: 20px; height: 20px; }
+  .modal-buttons {
+    display: flex; gap: 8px;
+    margin-top: 18px;
+  }
+  .modal-btn {
+    flex: 1;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+  }
+  .modal-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .modal-btn-primary {
+    background: #5C4332;
+    color: #F5EDE0;
+  }
+  .modal-btn-secondary {
+    background: transparent;
+    border: 0.5px solid rgba(101,72,51,0.2);
+    color: #5C4332;
+  }
+  .modal-label {
+    font-size: 12px; color: #A89684;
+    margin: 0 0 8px 2px;
+    font-weight: 500;
+  }
 </style>
 </head>
 <body>
@@ -857,64 +976,18 @@
         <h2 class="list-title">나의 회복</h2>
         <p class="list-sub">기분 좋아지는 나만의 방법들</p>
       </div>
-      <div class="green-banner">
-        <div class="green-banner-top">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/><path d="M12 16v6"/></svg>
-          <span>이런 게 도움 될 수도</span>
-        </div>
-        <p>풀어낸 후에 산책 한 번 해봐. 많은 사람들이 그러고 나서 마음이 가벼워졌다고 해.</p>
-      </div>
+      <div id="recovery-banner"></div>
       <p class="day-label">시작해볼 만한 것들</p>
-      <div class="recovery-card">
-        <div class="recovery-card-top">
-          <div class="recovery-card-left">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 4v16M5 12h16M9 8l-4 4 4 4"/></svg>
-            <p>저녁 산책 30분</p>
-          </div>
-          <div class="leaves">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-          </div>
-        </div>
-        <p class="recovery-meta">아직 안 해봤어요</p>
-      </div>
-      <div class="recovery-card">
-        <div class="recovery-card-top">
-          <div class="recovery-card-left">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
-            <p>좋아하는 차 한 잔</p>
-          </div>
-          <div class="leaves">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-          </div>
-        </div>
-        <p class="recovery-meta">아직 안 해봤어요</p>
-      </div>
-      <div class="recovery-card">
-        <div class="recovery-card-top">
-          <div class="recovery-card-left">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            <p>친한 사람과 통화</p>
-          </div>
-          <div class="leaves">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
-          </div>
-        </div>
-        <p class="recovery-meta">아직 안 해봤어요</p>
-      </div>
-      <div class="add-recovery">
+      <div id="recovery-list"></div>
+      <div class="add-recovery" onclick="openAddRecovery()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         <span>나만의 회복 방법 추가하기</span>
       </div>
     </div>
+  </div>
+
+  <div class="overlay hidden" id="recovery-modal-overlay">
+    <div class="recovery-modal" id="recovery-modal"></div>
   </div>
 
   <div class="bottom-nav" id="bottom-nav">
@@ -947,9 +1020,37 @@
   let entries = JSON.parse(localStorage.getItem('untangle-entries') || '[]');
   let currentTab = 'home';
 
+  // Recovery state
+  const DEFAULT_RECOVERIES = [
+    { id: 'walk', name: '저녁 산책 30분', icon: 'walk', logs: [] },
+    { id: 'tea', name: '좋아하는 차 한 잔', icon: 'tea', logs: [] },
+    { id: 'call', name: '친한 사람과 통화', icon: 'call', logs: [] }
+  ];
+  let recoveries = JSON.parse(localStorage.getItem('untangle-recoveries') || 'null') || DEFAULT_RECOVERIES;
+  let pendingRecoveryIcon = 'leaf';
+  let editingRecoveryId = null;
+
+  // Icon library
+  const RECOVERY_ICONS = {
+    walk: '<path d="M13 4v16M5 12h16M9 8l-4 4 4 4"/>',
+    tea: '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+    call: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+    leaf: '<path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z" fill="currentColor"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+    bath: '<path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M2 12h20"/><path d="M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
+    pen: '<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/>',
+    yoga: '<circle cx="12" cy="5" r="2"/><path d="M12 7v6M6 21l6-8 6 8M9 13l3-3 3 3"/>',
+    food: '<path d="M3 11h18M5 11l1 9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-9"/><path d="M12 11V7"/><circle cx="12" cy="5" r="1.5"/>',
+    home: '<path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>'
+  };
+  const ICON_OPTIONS = ['walk', 'tea', 'call', 'book', 'music', 'bath', 'sun', 'pen', 'yoga', 'food', 'home', 'leaf'];
+
   function init() {
     setGreeting();
     updateListScreen();
+    updateRecoveryScreen();
 
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SR) {
@@ -990,6 +1091,7 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
     document.getElementById('screen-' + tab).classList.remove('hidden');
     if (tab === 'list') updateListScreen();
+    if (tab === 'recovery') updateRecoveryScreen();
     if (tab === 'home') document.getElementById('bottom-nav').classList.remove('hidden');
   }
 
@@ -1007,10 +1109,13 @@
     document.getElementById('settings-menu').classList.toggle('hidden');
   }
   function resetData() {
-    if (confirm('모든 기록을 지울까? 되돌릴 수 없어.')) {
+    if (confirm('모든 기록을 지울까? (풀어낸 것들 + 회복 방법 둘 다) 되돌릴 수 없어.')) {
       localStorage.removeItem('untangle-entries');
+      localStorage.removeItem('untangle-recoveries');
       entries = [];
+      recoveries = JSON.parse(JSON.stringify(DEFAULT_RECOVERIES));
       updateListScreen();
+      updateRecoveryScreen();
       toast('초기화 됐어요');
     }
     document.getElementById('settings-menu').classList.add('hidden');
@@ -1022,15 +1127,16 @@
 
   function exportData() {
     document.getElementById('settings-menu').classList.add('hidden');
-    if (entries.length === 0) {
+    if (entries.length === 0 && recoveries.every(r => r.logs.length === 0)) {
       toast('아직 내보낼 기록이 없어요');
       return;
     }
     const data = {
       app: 'untangle',
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
-      entries: entries
+      entries: entries,
+      recoveries: recoveries
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1042,7 +1148,7 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast(`${entries.length}개 기록을 내보냈어요`);
+    toast('기록을 내보냈어요');
   }
 
   function triggerImport() {
@@ -1060,29 +1166,54 @@
         if (!data.entries || !Array.isArray(data.entries)) {
           throw new Error('잘못된 파일');
         }
-        // 중복 제거: 같은 date + headline은 같은 기록으로 간주
         const existingKeys = new Set(entries.map(en => `${en.date}|${en.headline}`));
         const newEntries = data.entries.filter(en =>
           en.date && en.headline && !existingKeys.has(`${en.date}|${en.headline}`)
         );
-        if (newEntries.length === 0) {
-          toast('새로 가져올 기록이 없어요');
+
+        // recoveries 병합 (있으면)
+        let mergedRecoveries = 0;
+        if (data.recoveries && Array.isArray(data.recoveries)) {
+          const existingIds = new Set(recoveries.map(r => r.id));
+          data.recoveries.forEach(impR => {
+            if (!existingIds.has(impR.id)) {
+              recoveries.push(impR);
+              mergedRecoveries++;
+            }
+          });
+        }
+
+        if (newEntries.length === 0 && mergedRecoveries === 0) {
+          toast('새로 가져올 게 없어요');
           return;
         }
-        const proceed = confirm(`${newEntries.length}개의 새 기록을 가져올까요?`);
-        if (!proceed) return;
+
+        let msg = '';
+        if (newEntries.length > 0) msg += `풀어낸 기록 ${newEntries.length}개`;
+        if (mergedRecoveries > 0) msg += (msg ? ', ' : '') + `회복 방법 ${mergedRecoveries}개`;
+        const proceed = confirm(`${msg}를 가져올까요?`);
+        if (!proceed) {
+          // recoveries는 이미 추가됐으니 rollback
+          if (mergedRecoveries > 0) {
+            const importedIds = new Set(data.recoveries.map(r => r.id));
+            recoveries = recoveries.filter(r => !importedIds.has(r.id) || DEFAULT_RECOVERIES.some(d => d.id === r.id));
+          }
+          return;
+        }
+
         entries = [...newEntries, ...entries].sort((a, b) =>
           new Date(b.date) - new Date(a.date)
         );
         localStorage.setItem('untangle-entries', JSON.stringify(entries));
+        saveRecoveries();
         updateListScreen();
-        toast(`${newEntries.length}개 기록을 가져왔어요`);
+        updateRecoveryScreen();
+        toast('가져왔어요');
         switchTab('list');
       } catch (err) {
         console.error(err);
         alert('파일을 읽을 수 없어요. 풀어내기 백업 파일이 맞는지 확인해주세요.');
       } finally {
-        // 같은 파일 다시 선택할 수 있게 초기화
         event.target.value = '';
       }
     };
@@ -1640,6 +1771,306 @@
   function closeOverlay() {
     document.getElementById('summary-overlay').classList.add('hidden');
   }
+
+  // ===== Recovery functions =====
+  function saveRecoveries() {
+    localStorage.setItem('untangle-recoveries', JSON.stringify(recoveries));
+  }
+
+  function getRecoveryIconSvg(iconKey, filled) {
+    const path = RECOVERY_ICONS[iconKey] || RECOVERY_ICONS.leaf;
+    const stroke = filled ? 'currentColor' : 'currentColor';
+    return `<svg viewBox="0 0 24 24" fill="${iconKey === 'leaf' ? 'currentColor' : 'none'}" stroke="${stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+  }
+
+  function renderLeaves(logs) {
+    // 최근 4회 로그를 잎으로 표시
+    // log.effect: 'good' | 'neutral' | 'bad'
+    const recent = logs.slice(-4);
+    const slots = [];
+    for (let i = 0; i < 4; i++) {
+      const log = recent[i];
+      if (!log) {
+        slots.push('<svg viewBox="0 0 24 24" fill="currentColor" class="empty"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>');
+      } else if (log.effect === 'good') {
+        slots.push('<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>');
+      } else {
+        slots.push('<svg viewBox="0 0 24 24" fill="currentColor" style="color:#C9BCA7"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>');
+      }
+    }
+    return slots.join('');
+  }
+
+  function formatRelativeTime(isoDate) {
+    const now = new Date();
+    const then = new Date(isoDate);
+    const diffMs = now - then;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHr / 24);
+    if (diffMin < 1) return '방금';
+    if (diffMin < 60) return diffMin + '분 전';
+    if (diffHr < 24) return diffHr + '시간 전';
+    if (diffDay === 1) return '어제';
+    if (diffDay < 7) return diffDay + '일 전';
+    return Math.floor(diffDay / 7) + '주 전';
+  }
+
+  function getRecoveryMetaText(rec) {
+    if (rec.logs.length === 0) return '아직 안 해봤어요';
+    const last = rec.logs[rec.logs.length - 1];
+    const total = rec.logs.length;
+    const goodCount = rec.logs.filter(l => l.effect === 'good').length;
+    if (total === 1) return formatRelativeTime(last.date) + '에 해봤어요';
+    return `${formatRelativeTime(last.date)} · 총 ${total}번 · ${goodCount}번 도움 됨`;
+  }
+
+  function updateRecoveryScreen() {
+    const listEl = document.getElementById('recovery-list');
+    const bannerEl = document.getElementById('recovery-banner');
+
+    // Banner: 인사이트 또는 기본 안내
+    const allLogs = recoveries.flatMap(r => r.logs.map(l => ({ ...l, name: r.name })));
+    if (allLogs.length >= 3) {
+      // 효과 좋았던 회복법 찾기
+      const stats = recoveries
+        .map(r => ({
+          name: r.name,
+          goodRate: r.logs.length > 0 ? r.logs.filter(l => l.effect === 'good').length / r.logs.length : 0,
+          count: r.logs.length
+        }))
+        .filter(s => s.count >= 2)
+        .sort((a, b) => b.goodRate - a.goodRate);
+
+      if (stats.length > 0 && stats[0].goodRate >= 0.5) {
+        bannerEl.innerHTML = `<div class="green-banner">
+          <div class="green-banner-top">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/><path d="M12 16v6"/></svg>
+            <span>발견한 것</span>
+          </div>
+          <p><strong>${escapeHtml(stats[0].name)}</strong>가 가장 도움이 됐어요.</p>
+        </div>`;
+      } else {
+        bannerEl.innerHTML = '';
+      }
+    } else {
+      bannerEl.innerHTML = `<div class="green-banner">
+        <div class="green-banner-top">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/><path d="M12 16v6"/></svg>
+          <span>이런 게 도움 될 수도</span>
+        </div>
+        <p>마음 풀어낸 후에 뭐 했을 때 좋았는지 여기 기록해봐. 시간이 지나면 나만의 회복법이 보일 거예요.</p>
+      </div>`;
+    }
+
+    if (recoveries.length === 0) {
+      listEl.innerHTML = `<div class="empty-msg" style="padding:30px 20px">
+        회복 방법이 없어요.<br>아래 + 버튼으로 추가해봐.
+      </div>`;
+      return;
+    }
+
+    listEl.innerHTML = recoveries.map(rec => `
+      <div class="recovery-card" onclick="logRecovery('${rec.id}')">
+        <button class="recovery-card-menu" onclick="event.stopPropagation(); openRecoveryMenu('${rec.id}')" aria-label="메뉴">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+        <div class="recovery-card-top">
+          <div class="recovery-card-left">
+            ${getRecoveryIconSvg(rec.icon, false)}
+            <p>${escapeHtml(rec.name)}</p>
+          </div>
+          <div class="leaves">
+            ${renderLeaves(rec.logs)}
+          </div>
+        </div>
+        <p class="recovery-meta">${getRecoveryMetaText(rec)}</p>
+      </div>
+    `).join('');
+  }
+
+  // 카드 클릭: 효과 평가 모달 띄움
+  function logRecovery(id) {
+    const rec = recoveries.find(r => r.id === id);
+    if (!rec) return;
+    showRecoveryEffectModal(rec);
+  }
+
+  function showRecoveryEffectModal(rec) {
+    const modal = document.getElementById('recovery-modal');
+    modal.innerHTML = `
+      <h3>${escapeHtml(rec.name)}</h3>
+      <p class="modal-sub">방금 해봤어? 어땠어?</p>
+      <button class="modal-row" onclick="recordEffect('${rec.id}', 'good')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z" fill="#4A6B1F" stroke="#4A6B1F"/></svg>
+        도움 됐어
+      </button>
+      <button class="modal-row" onclick="recordEffect('${rec.id}', 'neutral')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8 6 8 12 12 16C16 12 16 6 12 2Z"/></svg>
+        그냥 그랬어
+      </button>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-secondary" onclick="closeRecoveryModal()">취소</button>
+      </div>
+    `;
+    document.getElementById('recovery-modal-overlay').classList.remove('hidden');
+  }
+
+  function recordEffect(id, effect) {
+    const rec = recoveries.find(r => r.id === id);
+    if (!rec) return;
+    rec.logs.push({
+      date: new Date().toISOString(),
+      effect: effect
+    });
+    saveRecoveries();
+    closeRecoveryModal();
+    toast(effect === 'good' ? '도움 됐다고 기록했어요' : '기록했어요');
+    updateRecoveryScreen();
+  }
+
+  // 점 3개 메뉴
+  function openRecoveryMenu(id) {
+    const rec = recoveries.find(r => r.id === id);
+    if (!rec) return;
+    const modal = document.getElementById('recovery-modal');
+    modal.innerHTML = `
+      <h3>${escapeHtml(rec.name)}</h3>
+      <p class="modal-sub">${rec.logs.length}번 기록됨</p>
+      <button class="modal-row" onclick="editRecovery('${rec.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        이름 바꾸기
+      </button>
+      ${rec.logs.length > 0 ? `<button class="modal-row" onclick="clearRecoveryLogs('${rec.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        기록 초기화 (잎 비우기)
+      </button>` : ''}
+      <button class="modal-row danger" onclick="deleteRecovery('${rec.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        이 회복 방법 버리기
+      </button>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-secondary" onclick="closeRecoveryModal()">닫기</button>
+      </div>
+    `;
+    document.getElementById('recovery-modal-overlay').classList.remove('hidden');
+  }
+
+  function editRecovery(id) {
+    const rec = recoveries.find(r => r.id === id);
+    if (!rec) return;
+    editingRecoveryId = id;
+    pendingRecoveryIcon = rec.icon;
+    showAddEditModal(rec);
+  }
+
+  function clearRecoveryLogs(id) {
+    if (!confirm('이 방법의 기록을 모두 비울까? 잎이 다시 비어있게 돼.')) return;
+    const rec = recoveries.find(r => r.id === id);
+    if (!rec) return;
+    rec.logs = [];
+    saveRecoveries();
+    closeRecoveryModal();
+    updateRecoveryScreen();
+    toast('비웠어요');
+  }
+
+  function deleteRecovery(id) {
+    const rec = recoveries.find(r => r.id === id);
+    if (!rec) return;
+    if (!confirm(`"${rec.name}"을(를) 정말 버릴까?`)) return;
+    recoveries = recoveries.filter(r => r.id !== id);
+    saveRecoveries();
+    closeRecoveryModal();
+    updateRecoveryScreen();
+    toast('버렸어요');
+  }
+
+  // 추가 버튼
+  function openAddRecovery() {
+    editingRecoveryId = null;
+    pendingRecoveryIcon = 'leaf';
+    showAddEditModal(null);
+  }
+
+  function showAddEditModal(rec) {
+    const isEdit = !!rec;
+    const modal = document.getElementById('recovery-modal');
+    modal.innerHTML = `
+      <h3>${isEdit ? '회복 방법 바꾸기' : '새 회복 방법'}</h3>
+      <p class="modal-sub">${isEdit ? '이름이나 아이콘을 바꿀 수 있어' : '뭘 할 때 기분이 좋아져?'}</p>
+      <p class="modal-label">이름</p>
+      <input class="modal-input" id="recovery-name-input" placeholder="예: 산책, 음악 듣기, 게임..." value="${isEdit ? escapeHtml(rec.name) : ''}" oninput="updateAddBtnState()">
+      <p class="modal-label">아이콘</p>
+      <div class="icon-picker" id="icon-picker">
+        ${ICON_OPTIONS.map(key => `
+          <button class="icon-option ${key === pendingRecoveryIcon ? 'selected' : ''}" onclick="selectIcon('${key}')">
+            ${getRecoveryIconSvg(key, false)}
+          </button>
+        `).join('')}
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-secondary" onclick="closeRecoveryModal()">취소</button>
+        <button class="modal-btn modal-btn-primary" id="recovery-save-btn" onclick="saveRecoveryFromModal()" ${isEdit ? '' : 'disabled'}>저장</button>
+      </div>
+    `;
+    document.getElementById('recovery-modal-overlay').classList.remove('hidden');
+    setTimeout(() => {
+      const input = document.getElementById('recovery-name-input');
+      if (input && !isEdit) input.focus();
+    }, 300);
+  }
+
+  function updateAddBtnState() {
+    const input = document.getElementById('recovery-name-input');
+    const btn = document.getElementById('recovery-save-btn');
+    if (input && btn) btn.disabled = input.value.trim().length === 0;
+  }
+
+  function selectIcon(key) {
+    pendingRecoveryIcon = key;
+    document.querySelectorAll('#icon-picker .icon-option').forEach((el, i) => {
+      el.classList.toggle('selected', ICON_OPTIONS[i] === key);
+    });
+  }
+
+  function saveRecoveryFromModal() {
+    const input = document.getElementById('recovery-name-input');
+    const name = input ? input.value.trim() : '';
+    if (!name) return;
+
+    if (editingRecoveryId) {
+      const rec = recoveries.find(r => r.id === editingRecoveryId);
+      if (rec) {
+        rec.name = name;
+        rec.icon = pendingRecoveryIcon;
+      }
+      toast('바꿨어요');
+    } else {
+      recoveries.push({
+        id: 'r_' + Date.now(),
+        name: name,
+        icon: pendingRecoveryIcon,
+        logs: []
+      });
+      toast('추가했어요');
+    }
+    saveRecoveries();
+    editingRecoveryId = null;
+    closeRecoveryModal();
+    updateRecoveryScreen();
+  }
+
+  function closeRecoveryModal() {
+    document.getElementById('recovery-modal-overlay').classList.add('hidden');
+  }
+  // 클릭 외부 닫기
+  document.addEventListener('click', (e) => {
+    const overlay = document.getElementById('recovery-modal-overlay');
+    if (overlay && e.target === overlay) {
+      closeRecoveryModal();
+    }
+  });
 
   function escapeHtml(text) {
     if (!text) return '';
